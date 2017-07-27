@@ -1,0 +1,104 @@
+﻿<div id=login_error class=unlogged></div>
+<div id=login_name class=logged></div>
+<div  class=unlogged> Логин: <input id=login value=9999></div>
+<div  class=unlogged> Пароль: <input id=password type=password value=9999 class=unlogged></div>
+<button id=btn_login class=unlogged>Залогиниться</button>
+<button id=btn_logout class=logged>Разлогиниться</button><br>
+<div class=hidden>Адрес: <input id=url value="https://alice.digital/api/viewmodel/9999?type=medic"></div>
+<!--Метод: <select id=method><option value=GET selected>GET<option value=POST>POST</select><br> -->
+<button id=send>Получить данные</button>
+<div id=genome></div>
+<div id=systems></div>
+<pre><div id=output></div></pre>
+<script src=https://yastatic.net/jquery/2.1.4/jquery.min.js></script>
+<script src=base64.js></script>
+<script>
+	sendRequest = function(url, method, callback)	{
+		$.ajax({
+			url: url,
+			method: method,
+			headers: {'Authorization': 'Basic '+Base64.encode($('#login').val()+":"+$("#password").val())},
+			
+		})
+			.always (function(ret)	{
+				if (ret.status == 401)	{	//wrong login
+					logout_frontend('Неверный логин или пароль!');
+				}
+				else {
+					callback(ret)
+				}
+			})
+	}
+	
+	systems = [
+		{name: 'Опорно-двигательная система', sys_class:'ods'},
+		{name: 'Сердечно-сосудистая система', sys_class:'sss'},
+		{name: 'Дыхательная система', sys_class:'ds'},
+		{name: 'Эндокринная система', sys_class:'es'},
+		{name: 'Лимфатическая система', sys_class:'ls'},
+		{name: 'Нервная система', sys_class:'ns'}
+	]
+	
+	system_states = {"-1": "нет данных", 0: "не функционирует", 1: "здорова"};
+
+	$(document).ready(function() {
+		function logout_frontend(error_msg)	{
+			$('#login_error').html(error_msg);
+			$('.logged').hide()
+			$('.unlogged').show()
+		}
+		
+		function login_frontend(user_name)	{
+			$('#login_name').html(user_name);
+			$('.logged').show()
+			$('.unlogged').hide()
+		}
+	
+		$('#send').on('click', function() {
+			sendRequest($('#url').val(), 'GET', function(ret)	{
+					console.log(ret);
+					genome = "Геном: ";
+					for (i=0; i<ret.viewModel.genome.length; i++)
+						genome += "<span class=gen_item>"+ret.viewModel.genome[i]+"</span>";
+					$('#genome').html(genome)
+					
+					<!-- system_data = ret.viewModel.systems == undefined ? [-1, -1, 0, 1, -1, -1] : ret.viewModel.systems
+					systems_text = "Системы организма: <ul>\n";
+					for (i=0; i<system_data.length; i++)
+						systems_text+="<li class='"+systems[i].sys_class+" state"+system_data[i]+"'>"+systems[i].name+": "+system_states[system_data[i]]
+					$('#systems').html(systems_text)
+					
+					$('#output').html(JSON.stringify(ret, null, "\t"))
+-->
+				})
+		})
+		
+		$('#btn_login').on('click', function() {
+			sendRequest($('#url').val(), 'GET', function(ret) {
+				login_frontend(ret.viewModel.firstName+" "+ret.viewModel.lastNam )
+			})
+		})
+		
+		$('#btn_logout').on('click', logout_frontend)
+	
+	})
+</script>
+<style>
+	input	{width: 400px;}
+	#login_error	{color: red; font-weight: bold;}
+	.logged {display: none;}
+	#genome	{font-size: 1.5em; }
+	.gen_item	{
+		border: 2px solid black;
+		text-align: center;
+		display: inline-block;
+	    margin:-1px 0 0 -1px;
+		width: 1em;
+		padding: 0.2em;
+		border-collapse: collapse;
+	}	
+	.state-1 {color: #888;}
+	.state0 {color: red; font-weight: bold;}
+	.state1 {color: #0B0; }
+	.hidden {display: none}
+</style>
