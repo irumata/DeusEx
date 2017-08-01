@@ -5,7 +5,7 @@
 </head>
 <div class="login">
         <h1>Медицинский терминал</h1>
-        Допускается использование только в лаборатории. Остальные просто вводят логин и пароль
+        Допускается использование только на стационарных устройствах в лаборатории.
 	<div id=login_error class=unlogged></div>
 	<div id=login_name class=logged></div>
 		<div  class=unlogged>
@@ -15,7 +15,7 @@
 			<input type="password" name="p" placeholder="Password" required="required" id="password" type="password" value="" class="unlogged" />
 		</div>
 		<div class=unlogged>
-			<input type="password" name="doctor" placeholder="Doctor code" id="doctor" value='systemmedic1' class='unlogged'>
+			<input type="password" name="doctor" placeholder="Doctor code" id="doctor" value='' class='unlogged'>
 		</div>
 		<button class="btn btn-primary btn-block btn-large unlogged" id=btn_login>Log in</button>
 		<button class="btn btn-primary btn-block btn-large logged" id=btn_logout>Log out</button>
