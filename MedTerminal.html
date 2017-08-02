@@ -1,0 +1,102 @@
+
+<head>
+	<link rel="stylesheet" href="style.css">
+</head>
+<div class="login">
+	<h1>Login</h1>
+	<div id=login_error class=unlogged></div>
+	<div id=login_name class=logged></div>
+		<div  class=unlogged>
+			<input type="text" name="u" placeholder="Username" required="required" id="login" value="9999" />
+		</div>
+		<div  class=unlogged>
+			<input type="password" name="p" placeholder="Password" required="required" id="password" type="password" value="9999" class="unlogged" />
+		</div>
+		<button class="btn btn-primary btn-block btn-large unlogged" id=btn_login>Log in</button>
+		<button class="btn btn-primary btn-block btn-large logged" id=btn_logout>Log out</button>
+		<div class=hidden>Адрес: <input id=url value="https://alice.digital/api/viewmodel/9999?type=medic"></div>
+		<button class="btn btn-primary btn-block btn-large" id=send>Получить данные</button>
+		<div id=genome></div>
+		<div id=systems style="systems"></div>
+		<pre><div id=output></div></pre>
+		<script src=https://yastatic.net/jquery/2.1.4/jquery.min.js></script>
+		<script src=base64.js></script>
+		<script>
+		sendRequest = function(url, method, callback)	{
+			$.ajax({
+				url: url,
+				method: method,
+				headers: {'Authorization': 'Basic '+Base64.encode($('#login').val()+":"+$("#password").val())},
+
+			})
+			.always (function(ret)	{
+				if (ret.status == 401)	{	//wrong login
+					logout_frontend('Неверный логин или пароль!');
+				}
+				else {
+					callback(ret)
+				}
+			})
+		}
+
+		systems = [
+			{name: 'Опорно-двигательная система', sys_class:'ods'},
+			{name: 'Сердечно-сосудистая система', sys_class:'sss'},
+			{name: 'Дыхательная система', sys_class:'ds'},
+			{name: 'Эндокринная система', sys_class:'es'},
+			{name: 'Лимфатическая система', sys_class:'ls'},
+			{name: 'Нервная система', sys_class:'ns'}
+		]
+
+		system_states = {"-1": "нет данных", 0: "не функционирует", 1: "здорова"};
+
+		$(document).ready(function() {
+			function logout_frontend(error_msg)	{
+				$('#login_error').html(error_msg);
+				$('.logged').hide()
+				$('.unlogged').show()
+			}
+
+			function login_frontend(user_name)	{
+				$('#login_name').html(user_name);
+				$('.logged').show()
+				$('.unlogged').hide()
+			}
+
+			$('#send').on('click', function() {
+				sendRequest($('#url').val(), 'GET', function(ret)	{
+					console.log(ret);
+
+					system_data = ret.viewModel.systems == undefined ? [-1, -1, 0, 1, -1, -1] : ret.viewModel.systems
+					systems_text = "Системы организма: <ul>\n";
+					for (i=0; i<system_data.length; i++)
+					systems_text+="<li class='"+systems[i].sys_class+" state"+system_data[i]+"'>"+systems[i].name+": "+system_states[system_data[i]]
+					$('#systems').html(systems_text)
+
+				})
+			})
+
+			$('#btn_login').on('click', function() {
+				sendRequest($('#url').val(), 'GET', function(ret) {
+					login_frontend(ret.viewModel.firstName+" "+ret.viewModel.lastNam )
+				})
+			})
+
+			$('#btn_logout').on('click', logout_frontend)
+
+		})
+		</script>
+		<style>
+		.logged {display: none;}
+		.hidden {display: none}
+	</style>
+</div>
+
+
+
+<!--div  class=unlogged> Логин: <input id=login value=9999></div>
+<div  class=unlogged> Пароль: <input id=password type=password value=9999 class=unlogged></div>
+<button id=btn_login class=unlogged>Залогиниться</button>
+<button id=btn_logout class=logged>Разлогиниться</button><br>
+<div class=hidden>Адрес: <input id=url value="https://alice.digital/api/viewmodel/9999?type=medic"></div>
+<!--Метод: <select id=method><option value=GET selected>GET<option value=POST>POST</select><br> -->

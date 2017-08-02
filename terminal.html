@@ -1,6 +1,6 @@
-
+﻿
 <head>
-	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="style.css"> 
 	<meta charset=UTF-8>
 </head>
 <div class="login">
@@ -101,8 +101,9 @@
 
 						systems_text += "</ul> \n Работоспособность систем организма   <ul>\n"
 						for (i=0; i<system_dataOld.length; i++)
-							systems_text+="<li class='"+systems[i].sys_class+" state"+system_dataOld[i]+"'>"+systems[i].name+": "+system_statesOld[system_data[i]]
-							
+							systems_text+="<li class='"+systems[i].sys_class+" state"+system_dataOld[i]+"'>"+systems[i].name+": "+system_statesOld[system_dataOld[i]]
+						//$('#output').html(JSON.stringify(ret, null, "\t"))
+
 						doctor = $("#doctor").val()
 						if (doctor == 'genmaster1')
 							$genome.html(genome)	
